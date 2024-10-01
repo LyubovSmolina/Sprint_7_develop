@@ -1,15 +1,20 @@
+import com.google.gson.Gson;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ru.praktikum.courier.Courier;
+import ru.praktikum.courier.Credentials;
 
 import static io.restassured.RestAssured.baseURI;
-import static ru.praktikum.courier.CreateAccountCourierSteps.sendPostRequest_CreateCourierAccount;
+import static io.restassured.RestAssured.given;
+import static ru.praktikum.CONST.*;
+import static ru.praktikum.courier.CreateAccountCourierSteps.sendPostRequestCreateCourierAccount;
 import static ru.praktikum.courier.LogInCourierSteps.*;
 import static ru.praktikum.courier.ResponseSteps.*;
 
-public class CourierLogInTest {
+public class CourierLogInTest extends Credentials {
 
 
     @Before
@@ -17,27 +22,35 @@ public class CourierLogInTest {
         baseURI = "https://qa-scooter.praktikum-services.ru/";
     }
 
+    @After
+    public void deleteCourier() {
+        if(courierId > 0) {
+            deleteCourierAccount();
+        }
+    }
+
 
     @Test
     @DisplayName("Успешная авторизация курьера в системе")
-    public void Success_LoginInCourierTest() {
+    public void successLoginInCourierTest() {
         Courier courier = Courier.random();
-        Response response = sendPostRequest_CreateCourierAccount(courier);
-        statusCodeAndBody_CreatedCourierAccount(response);
+        Response response = sendPostRequestCreateCourierAccount(courier);
+        statusCodeAndBodyCreatedCourierAccount(response);
 
-        Response response2 = logIn_CourierAccount(courier);
-        statusCodeAndBody_LogInCourierAccount(response2);
+        Response responseLogIn = logInCourierAccount(courier);
+        statusCodeAndBodyLogInCourierAccount(responseLogIn);
+        courierIdForDelete(courier);
 
-        System.out.println(response2.body().asString());
+        System.out.println(responseLogIn.body().asString());
 
     }
 
 
     @Test
     @DisplayName("Ошибка авторизации под несуществующим пользователем")
-    public void invalidAccount_LoginCourierTest() {
+    public void invalidAccountLoginCourierTest() {
         Response response = invalidCourierAccount();
-        statusCodeAndBodyLogInCourierAccount_WithInvalidData(response);
+        statusCodeAndBodyLogInCourierAccountWithInvalidData(response);
 
         System.out.println(response.body().asString());
 
@@ -46,85 +59,91 @@ public class CourierLogInTest {
 
     @Test
     @DisplayName("Ошибка авторизации c невалидным паролем")
-    public void invalidPassword_LoginInCourierTest() {
+    public void invalidPasswordLoginInCourierTest() {
         Courier courier = Courier.random();
-        Response response = sendPostRequest_CreateCourierAccount(courier);
-        statusCodeAndBody_CreatedCourierAccount(response);
+        Response response = sendPostRequestCreateCourierAccount(courier);
+        statusCodeAndBodyCreatedCourierAccount(response);
 
-        Response response1 = logIn_InvalidPasswordCourierAccount(courier);
-        statusCodeAndBodyLogInCourierAccount_WithInvalidData(response1);
+        Response responseInvalidPassword = logInInvalidPasswordCourierAccount(courier);
+        statusCodeAndBodyLogInCourierAccountWithInvalidData(responseInvalidPassword);
+        courierIdForDelete(courier);
 
-        System.out.println(response1.body().asString());
+        System.out.println(responseInvalidPassword.body().asString());
     }
 
     @Test
     @DisplayName("Ошибка авторизации c невалидным логином")
-    public void invalidLogin_LoginInCourierTest() {
+    public void invalidLoginLoginInCourierTest() {
         Courier courier = Courier.random();
-        Response response = sendPostRequest_CreateCourierAccount(courier);
-        statusCodeAndBody_CreatedCourierAccount(response);
+        Response response = sendPostRequestCreateCourierAccount(courier);
+        statusCodeAndBodyCreatedCourierAccount(response);
 
-        Response response1 = logIn_InvalidLoginCourierAccount(courier);
-        statusCodeAndBodyLogInCourierAccount_WithInvalidData(response1);
+        Response responseInvalidLogin = logInInvalidLoginCourierAccount(courier);
+        statusCodeAndBodyLogInCourierAccountWithInvalidData(responseInvalidLogin);
+        courierIdForDelete(courier);
 
-        System.out.println(response1.body().asString());
+        System.out.println(responseInvalidLogin.body().asString());
 
     }
     @Test
     @DisplayName("Ошибка авторизации cо значением null в ключе \"login\"")
-    public void nullLogin_LoginInCourierTest() {
+    public void nullLoginLoginInCourierTest() {
         Courier courier = Courier.random();
-        Response response = sendPostRequest_CreateCourierAccount(courier);
-        statusCodeAndBody_CreatedCourierAccount(response);
+        Response response = sendPostRequestCreateCourierAccount(courier);
+        statusCodeAndBodyCreatedCourierAccount(response);
 
-        Response response1 = logIn_NullLoginCourierAccount(courier);
-        statusCodeAndBodyLogInCourierAccount_WithOutData(response1);
+        Response responseNullLogin = logInNullLoginCourierAccount(courier);
+        statusCodeAndBodyLogInCourierAccountWithOutData(responseNullLogin);
+        courierIdForDelete(courier);
 
-        System.out.println(response1.body().asString());
+        System.out.println(responseNullLogin.body().asString());
 
     }
 
     //При запросе со значением null в поле "пароль" сервер возвращает 504 ошибку, в том числе проверено через Postman.
     @Test
     @DisplayName("Ошибка авторизации cо значением null в ключе \"password\"")
-    public void nullPassword_LoginInCourierTest() {
+    public void nullPasswordLoginInCourierTest() {
         Courier courier = Courier.random();
-        Response response = sendPostRequest_CreateCourierAccount(courier);
-        statusCodeAndBody_CreatedCourierAccount(response);
+        Response response = sendPostRequestCreateCourierAccount(courier);
+        statusCodeAndBodyCreatedCourierAccount(response);
 
-        Response response1 = logIn_NullPasswordCourierAccount(courier);
-        statusCodeAndBodyLogInCourierAccount_WithOutData(response1);
+        Response responseNullPassword = logInNullPasswordCourierAccount(courier);
+        statusCodeAndBodyLogInCourierAccountWithOutData(responseNullPassword);
+        courierIdForDelete(courier);
 
-        System.out.println(response1.body().asString());
+        System.out.println(responseNullPassword.body().asString());
 
     }
 
     @Test
     @DisplayName("Ошибка авторизации при отсутствии в теле запроса пары ключ-значение \"login\"")
-    public void bodyWithOutLogin_LoginInCourierTest() {
+    public void bodyWithOutLoginLoginInCourierTest() {
         Courier courier = Courier.random();
-        Response response = sendPostRequest_CreateCourierAccount(courier);
-        statusCodeAndBody_CreatedCourierAccount(response);
+        Response response = sendPostRequestCreateCourierAccount(courier);
+        statusCodeAndBodyCreatedCourierAccount(response);
 
-        Response response1 = logIn_WithOutLoginCourierAccount(courier);
-        statusCodeAndBodyLogInCourierAccount_WithOutData(response1);
+        Response responseWithOutLogin = logInWithOutLoginCourierAccount(courier);
+        statusCodeAndBodyLogInCourierAccountWithOutData(responseWithOutLogin);
+        courierIdForDelete(courier);
 
-        System.out.println(response1.body().asString());
+        System.out.println(responseWithOutLogin.body().asString());
 
     }
 
     //При запросе без поля "пароль" сервер возвращает 504 ошибку, в том числе проверено через Postman.
     @Test
     @DisplayName("Ошибка авторизации при отсутствии в теле запроса пары ключ-значение \"password\"")
-    public void bodyWithOutPassword_LoginInCourierTest() {
+    public void bodyWithOutPasswordLoginInCourierTest() {
         Courier courier = Courier.random();
-        Response response = sendPostRequest_CreateCourierAccount(courier);
-        statusCodeAndBody_CreatedCourierAccount(response);
+        Response response = sendPostRequestCreateCourierAccount(courier);
+        statusCodeAndBodyCreatedCourierAccount(response);
 
-        Response response1 = logIn_WithOutPasswordCourierAccount(courier);
-        statusCodeAndBodyLogInCourierAccount_WithOutData(response1);
+        Response responseWithOutPassword = logInWithOutPasswordCourierAccount(courier);
+        statusCodeAndBodyLogInCourierAccountWithOutData(responseWithOutPassword);
+        courierIdForDelete(courier);
 
-        System.out.println(response1.body().asString());
+        System.out.println(responseWithOutPassword.body().asString());
 
     }
 

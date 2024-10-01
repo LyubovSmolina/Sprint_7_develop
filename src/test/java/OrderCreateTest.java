@@ -6,11 +6,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.praktikum.order.OrdersData;
-
 import java.util.List;
-
-import static ru.praktikum.order.OrderSteps.sendPostRequest_OrderSelectScooterColor;
-import static ru.praktikum.order.OrderSteps.statusCodeAndBody_OrderSelectScooterColor;
+import static ru.praktikum.order.OrderSteps.sendPostRequestOrderSelectScooterColor;
+import static ru.praktikum.order.OrderSteps.statusCodeAndBodyOrderSelectScooterColor;
 
 @RunWith(Parameterized.class)
 public class OrderCreateTest {
@@ -39,8 +37,8 @@ public class OrderCreateTest {
     @DisplayName("Успешное создание заказа при учете в теле запроса цвета самоката: 2 параметра(серый и черный), одного из параметров(серый/черный), без выбора цвета")
     public void scooterColorTest() {
         OrdersData colorSelect = OrdersData.createNewOrder_SelectColor(color);
-        Response response = sendPostRequest_OrderSelectScooterColor(colorSelect);
-        statusCodeAndBody_OrderSelectScooterColor(response);
+        Response response = sendPostRequestOrderSelectScooterColor(colorSelect);
+        statusCodeAndBodyOrderSelectScooterColor(response);
 
         System.out.println(color);
         System.out.println(response.body().asString());

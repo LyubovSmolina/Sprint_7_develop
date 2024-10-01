@@ -15,6 +15,7 @@ public class CONST {
 
     public static String API_ORDERS = "/api/v1/orders";
 
+    public static String API_DELETECOURIER = "/api/v1/courier/";
 
 
 }

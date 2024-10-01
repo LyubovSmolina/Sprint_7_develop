@@ -1,71 +1,85 @@
+import com.google.gson.Gson;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ru.praktikum.courier.Courier;
-
+import ru.praktikum.courier.Credentials;
 import static io.restassured.RestAssured.baseURI;
+import static io.restassured.RestAssured.given;
 import static ru.praktikum.courier.CreateAccountCourierSteps.*;
 import static ru.praktikum.courier.ResponseSteps.*;
 
 
-public class CourierCreateTest {
+public class CourierCreateTest extends Credentials{
+   // private int courierId;
 
     @Before
     public void setUp() {
         baseURI = "https://qa-scooter.praktikum-services.ru/";
     }
 
-
-    @Test
-    @DisplayName("Успешное создание учетной записи курьера")
-    public void Success_CreatedCourierTest() {
-
-        Response response = sendPostRequest_CreateCourierAccount(Courier.random());
-        statusCodeAndBody_CreatedCourierAccount(response);
-
-        System.out.println(response.body().asString());
+    @After
+    public void deleteCourier() {
+           if(courierId > 0) {
+               deleteCourierAccount();
+           }
     }
 
+        @Test
+        @DisplayName("Успешное создание учетной записи курьера")
+        public void successCreatedCourierTest () {
+            Courier courier = Courier.random();
+            Response response = sendPostRequestCreateCourierAccount(courier);
+            statusCodeAndBodyCreatedCourierAccount(response);
+            courierIdForDelete(courier);
+
+            System.out.println(response.body().asString());
+        }
+
+
 
     @Test
-    @DisplayName("Ошибка при создании 2-х учетных записей с одинаковыми логинами")
-    public void error_CreateIdenticalAccountsCourierTest() {
-        Courier courier = Courier.random();
-        Response response = sendPostRequest_CreateCourierAccount(courier);
-        statusCodeAndBody_CreatedCourierAccount(response);
+        @DisplayName("Ошибка при создании 2-х учетных записей с одинаковыми логинами")
+        public void errorCreateIdenticalAccountsCourierTest () {
+            Courier courier = Courier.random();
+            Response response = sendPostRequestCreateCourierAccount(courier);
+            statusCodeAndBodyCreatedCourierAccount(response);
 
-        Response responseDouble = create_IdenticalCourierAccount(courier);
-        statusCodeAndBodyConflict_IdenticalCourierAccount(responseDouble);
+            Response responseDouble = createIdenticalCourierAccount(courier);
+            statusCodeAndBodyConflictIdenticalCourierAccount(responseDouble);
+            courierIdForDelete(courier);
 
-        System.out.println(responseDouble.body().asString());
+            System.out.println(responseDouble.body().asString());
+        }
+
+        @Test
+        @DisplayName("Ошибка при создании учетной записи курьера с пустым полем \"Login\"")
+        public void errorCreateAccountWithoutLoginTest () {
+            Response response = sendPostRequestCreateAccountWithoutLogin();
+            statusCodeAndBodyBadRequestCreateAccountWithoutData(response);
+
+            System.out.println(response.body().asString());
+
+        }
+
+        @Test
+        @DisplayName("Ошибка при создании учетной записи курьера с пустым полем \"Password\"")
+        public void errorCreateAccountWithoutPasswordTest () {
+            Response response = sendPostRequestCreateAccountWithoutPassword();
+            statusCodeAndBodyBadRequestCreateAccountWithoutData(response);
+
+            System.out.println(response.body().asString());
+        }
+        @Test
+        @DisplayName("Ошибка при создании учетной записи курьера с пустым полем \"firstName\"")
+        public void errorCreateAccountWithoutFirstNameTest () {
+            Response response = sendPostRequestCreateAccountWithoutFirstName();
+            statusCodeAndBodyBadRequestCreateAccountWithoutData(response);
+
+            System.out.println(response.body().asString());
+        }
+
+
     }
-
-    @Test
-    @DisplayName("Ошибка при создании учетной записи курьера с пустым полем \"Login\"")
-    public void error_CreateAccountWithoutLoginTest() {
-        Response response = sendPostRequest_CreateAccountWithoutLogin();
-        statusCodeAndBody_BadRequest_CreateAccountWithoutData(response);
-
-        System.out.println(response.body().asString());
-
-    }
-
-    @Test
-    @DisplayName("Ошибка при создании учетной записи курьера с пустым полем \"Password\"")
-    public void error_CreateAccountWithoutPasswordTest() {
-        Response response = sendPostRequest_CreateAccountWithoutPassword();
-        statusCodeAndBody_BadRequest_CreateAccountWithoutData(response);
-
-        System.out.println(response.body().asString());
-    }
-    @Test
-    @DisplayName("Ошибка при создании учетной записи курьера с пустым полем \"firstName\"")
-    public void error_CreateAccountWithoutFirstNameTest() {
-        Response response = sendPostRequest_CreateAccountWithoutFirstName();
-        statusCodeAndBody_BadRequest_CreateAccountWithoutData(response);
-        System.out.println(response.body().asString());
-    }
-
-
-}

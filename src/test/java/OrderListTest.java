@@ -16,10 +16,10 @@ public class OrderListTest {
 
     @Test
     @DisplayName("Успешное получение списка заказов без courierId")
-    public void scooterColorTest() {
-        Response response = getListOrders_WithoutCourierId();
-        statusCodeAndBody_getListOrders(response);
-        int ammount = getAmmountOrders_Body(response);
+    public void orderListTest() {
+        Response response = getListOrdersWithoutCourierId();
+        statusCodeAndBodygetListOrders(response);
+        int ammount = getAmmountOrdersBody(response);
 
         System.out.println(response.body().asString());
         System.out.println(ammount);

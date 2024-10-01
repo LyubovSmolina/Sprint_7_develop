@@ -15,7 +15,7 @@ import static ru.praktikum.CONST.OK200;
 public class OrdersListSteps {
 
     @Step("Сравнение количества заказов в теле ответа с количеством заказов, отображаемых в ключе\"limit\"")
-    public static int getAmmountOrders_Body(Response response) {
+    public static int getAmmountOrdersBody(Response response) {
         List<String> ammountOrders = response.then().extract().path("orders.id");
         int ammount = ammountOrders.size();
         response.then().assertThat().body("pageInfo.limit",is(ammount));
@@ -23,13 +23,13 @@ public class OrdersListSteps {
     }
 
     @Step("Код и статус ответа 200 Ok. Тело ответа содержит номер \"id\" заказа в системе")
-    public static void statusCodeAndBody_getListOrders(Response response) {
+    public static void statusCodeAndBodygetListOrders(Response response) {
         response.then().statusCode(OK200)
                 .and().assertThat().body("orders.id", notNullValue());
     }
 
     @Step("Get запрос списка заказов без указания id курьера")
-    public static Response getListOrders_WithoutCourierId() {
+    public static Response getListOrdersWithoutCourierId() {
         Response response = given().log().all()
                 .header("Content-type", "application/json")
                 .baseUri(baseURI)

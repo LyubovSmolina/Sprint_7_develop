@@ -13,7 +13,7 @@ public class CreateAccountCourierSteps extends CONST {
 
 
     @Step("Запрос POST - создание учетной записи курьера")
-    public static Response sendPostRequest_CreateCourierAccount(Courier random) {
+    public static Response sendPostRequestCreateCourierAccount(Courier random) {
         Response response = given().log().all()
                 .header("Content-type", "application/json")
                 .baseUri(baseURI)
@@ -25,19 +25,18 @@ public class CreateAccountCourierSteps extends CONST {
 
 
     @Step("Запрос POST - создание второй индентичной учетной записи курьера")
-    public static Response create_IdenticalCourierAccount(Courier courierData) {
-        String json = "{\"login\": " + "\"" + courierData.getLogin() + "\"" + "," + " \"password\": " + "\"" + courierData.getPassword() + "\"," + " \"firstName\": " + "\"" + courierData.getFirstName() + "\"}";
+    public static Response createIdenticalCourierAccount(Courier courier) {
         Response responseDouble = given().log().all()
                 .header("Content-type", "application/json")
                 .baseUri(baseURI)
-                .body(json)
+                .body(Credentials.from(courier))
                 .when()
                 .post(API_COURIER_CREATE);
         return responseDouble;
     }
 
     @Step("Создание аккаунта курьера с пустым полем \"Login\"")
-    public static Response sendPostRequest_CreateAccountWithoutLogin() {
+    public static Response sendPostRequestCreateAccountWithoutLogin() {
         Response response = given().log().all()
                 .header("Content-type", "application/json")
                 .baseUri(baseURI)
@@ -48,7 +47,7 @@ public class CreateAccountCourierSteps extends CONST {
     }
 
     @Step("Создание аккаунта курьера с пустым полем \"Password\"")
-    public static Response sendPostRequest_CreateAccountWithoutPassword() {
+    public static Response sendPostRequestCreateAccountWithoutPassword() {
         Response response = given().log().all()
                 .header("Content-type", "application/json")
                 .baseUri(baseURI)
@@ -59,7 +58,7 @@ public class CreateAccountCourierSteps extends CONST {
     }
 
     @Step("Создание аккаунта курьера с пустым полем \"firstName\"")
-    public static Response sendPostRequest_CreateAccountWithoutFirstName() {
+    public static Response sendPostRequestCreateAccountWithoutFirstName() {
         Response response = given().log().all()
                 .header("Content-type", "application/json")
                 .baseUri(baseURI)
@@ -68,5 +67,6 @@ public class CreateAccountCourierSteps extends CONST {
                 .post(API_COURIER_CREATE);
         return response;
     }
+
 
 }
